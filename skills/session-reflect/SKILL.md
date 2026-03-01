@@ -1,6 +1,6 @@
 ---
 name: session-reflect
-description: 在会话结束或用户要求"反思/总结会话/更新画像/session reflect"时，初始化并维护 `~/.agents/context.md`，基于会话证据完成画像更新，并将变更历史追加到 `~/.agents/history.md`。
+description: 在会话结束或用户要求"反思/总结会话/更新画像/session reflect"时，基于当前会话中的用户交互证据，提取跨项目可复用的稳定偏好并更新用户画像。
 ---
 
 # session-reflect 执行规范
