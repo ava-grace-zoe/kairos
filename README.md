@@ -29,7 +29,7 @@ npx skills add ava-grace-zoe/kairos
 安装单个 Skill：
 
 ```bash
-npx skills add ava-grace-zoe/kairos/save-progress
+npx skills add ava-grace-zoe/kairos --skill save-progress
 ```
 
 安装后，Skills 会自动对你的 AI 助手（Claude Code、Cursor、Copilot 等）生效，在相关任务触发时自动激活。
