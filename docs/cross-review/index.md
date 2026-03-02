@@ -18,73 +18,54 @@
 
 ```text
 skills/cross-review/
-├── SKILL.md
-└── assets/
-    └── review-prompt.md       # 评审指令模板
+└── SKILL.md
 
 docs/cross-review/
 ├── index.md                   # 本文件
 └── design.md                  # 设计方案
 
-# 运行时产物（$TMPDIR/.cross-review/，系统重启自动清理）
-$TMPDIR/.cross-review/<YYYYMMDD-HHMMSS>/
-├── context.md                 # 仅对话内容时创建
-├── instructions.md            # 评审指令（路径引用 + 维度 + 格式）
-├── review-claude.md           # claude 评审结果
-├── review-codex.md            # codex 评审结果
-└── synthesis.md               # 综合分析报告
+# 运行时产物（仅降级场景，$TMPDIR/cross-review-<YYYYMMDD-HHMMSS>/）
+$TMPDIR/cross-review-<YYYYMMDD-HHMMSS>/
+└── context.md                 # 仅对话内容超长时创建
 ```
 
 ## 工作流程
 
-### 1. prepare — 准备评审上下文
+### 1. 准备 + 分发
 
-- 输入：待评审文件路径（或对话中的方案内容）+ 评审背景 + 关注点
+- 输入：用户触发评审请求
 - 处理：
-  - 方案已在文件系统 → 直接记录绝对路径，不拷贝
-  - 方案来自对话 → 写入 `$TMPDIR/.cross-review/<YYYYMMDD-HHMMSS>/context.md`
-  - 在临时目录生成 `instructions.md`（包含文件路径引用、评审维度、输出格式）
-- 产物：`$TMPDIR/.cross-review/<YYYYMMDD-HHMMSS>/instructions.md`
+  1. 收集最小充分评审上下文（被评审对象 + 决策背景 + 必要依赖），主动从代码库/对话历史补充
+  2. 根据待评审内容性质推导关注点，补充用户指定的关注点
+  3. 识别自身架构，排除同架构 agent，检测可用外部 agent CLI
+  4. 构建 prompt 调用外部 agent，stdout 捕获结果
+- 降级：上下文超长时落临时文件；stdout 不可靠时改文件回传
 
-### 2. dispatch — 分发评审任务
+### 2. 综合输出
 
-- 输入：`instructions.md` 路径
-- 处理：
-  1. 自我识别 — 判断当前执行环境所属模型架构
-  2. 排除自身 — 从可用 agent 列表中排除同架构 agent
-  3. 可用性检测 — 检测剩余 agent 的 CLI 是否存在
-  4. 无法确定自身身份时 → 向用户确认发送目标
-  5. 并行调用所有可用外部 agent CLI
-- 产物：`review-{agent}.md`（每个 agent 一个）
-- 关键：prompt ~30 字，上下文全部通过文件路径引用传递
-- 退化：仅一个可用 → 单 agent 评审；全不可用 → 终止并提示
-
-### 3. synthesize — 综合分析
-
-- 输入：所有 `review-*.md` 文件
-- 处理：交叉对比各 agent 评审意见
-  - **共识点**：多个 agent 都提到 → 高优先级
-  - **分歧点**：仅单个 agent 提到 → 需人工判断
-  - **独特洞察**：某 agent 发现的其他 agent 遗漏的问题
-- 产物：`synthesis.md` 综合报告 + 向用户输出摘要
+- 输入：外部 agent 返回的评审结果
+- 处理：对比各 agent 结果，在对话中直接输出
+  - **共识问题**（多个 agent 共同指出 → 高优先级）
+  - **分歧点**（仅单个 agent 提出 → 需用户判断）
+  - **行动建议**（按优先级排序）
+- 退化：仅一个外部 agent 可用时，输出该 agent 结果 + 自身判断
 
 ## 当前进度
 
-- [x] 设计方案完成
+- [x] 设计方案完成（v2：两阶段 + stdout 优先）
 - [x] Agent 分发规则设计
 - [x] SKILL.md 实现
-- [x] review-prompt.md 模板
 - [x] codex exec 调用验证
-- [x] context.md 传递验证
+- [ ] SKILL.md 对齐 design v2
 - [ ] claude -p 调用验证
-- [ ] 多 agent 交叉对比验证（synthesize 阶段）
+- [ ] 多 agent 交叉对比验证
 
 ## 已知问题
 
 1. 问题描述：外部 agent CLI 可用性依赖用户环境
-   - 影响范围：dispatch 阶段可能失败
-   - 临时规避：dispatch 前检测 CLI 是否存在，不可用则跳过并提示
+   - 影响范围：分发阶段可能失败
+   - 临时规避：`command -v` 检测，不可用则跳过并提示
 
-2. 问题描述：外部 agent 对文件系统的访问权限
-   - 影响范围：agent 可能无法读取指令文件或写入结果文件
-   - 临时规避：codex 需要 `--full-auto`；claude -p 默认有读权限
+2. 问题描述：prompt 内联方式存在 argv 长度限制
+   - 影响范围：超长上下文场景
+   - 临时规避：降级为临时文件引用
