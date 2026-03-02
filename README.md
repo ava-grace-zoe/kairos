@@ -6,8 +6,9 @@
 
 ```
 skills/              Agent Skills（遵循开放 Agent Skills 规范）
-├── save-progress/   保存当前会话的工作进度
-├── resume-progress/ 恢复上次会话的工作上下文
+├── progress-manager/ 保存/恢复会话工作进度
+├── session-reflect/  会话反思与用户画像更新
+├── cross-review/     跨模型交叉评审
 └── ...
 
 mcps/                MCP Servers（bun workspace 管理）
@@ -38,8 +39,9 @@ npx skills add ava-grace-zoe/kairos --skill save-progress
 
 | Skill | 说明 |
 |-------|------|
-| `save-progress` | 汇总当前会话的工作进度并持久化到项目文档 |
-| `resume-progress` | 恢复上次会话的工作上下文，立即继续工作 |
+| `progress-manager` | 保存/恢复会话工作进度，用于"保存进度"或"恢复进度/继续上次工作"场景 |
+| `session-reflect` | 会话结束时提取偏好与认知双轨证据，更新用户画像并输出元认知反馈 |
+| `cross-review` | 跨模型交叉评审，调用外部 code agent 独立评审同一方案，汇总共识与分歧 |
 
 ## 开发
 
