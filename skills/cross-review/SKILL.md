@@ -13,6 +13,7 @@ description: 对技术方案或代码进行跨模型交叉评审。用户要求"
 |-------|----------|---------|---------|
 | Claude | `claude -p "{prompt}"` | Claude 系列 | `--output-format text` |
 | Codex | `codex exec "{prompt}"` | GPT 系列 | `--full-auto` |
+| Gemini | `gemini -p "{prompt}"` | Gemini 系列 | `--output-format json` |
 
 ## 一、准备 + 分发
 
@@ -32,6 +33,10 @@ description: 对技术方案或代码进行跨模型交叉评审。用户要求"
    ```
    - 将评审上下文和关注点内联到 prompt 中，stdout 捕获结果。
    - 上下文超长时降级：写入 `$TMPDIR/cross-review-<YYYYMMDD-HHMMSS>/context.md`，prompt 中引用路径。
+   - Gemini 推荐非交互命令模板：
+   ```bash
+   gemini -p "{prompt}" --output-format json
+   ```
 
 ## 二、综合输出
 
