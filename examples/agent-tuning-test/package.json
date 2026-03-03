@@ -1,0 +1,24 @@
+{
+  "name": "agent-tuning-test",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "test": "bun run src/test.ts",
+    "test:local": "bun run src/test.ts --local-traces"
+  },
+  "dependencies": {
+    "ai": "^6.0.108",
+    "@ai-sdk/google": "^3.0.36",
+    "@opentelemetry/sdk-node": "^0.57.0",
+    "@opentelemetry/api": "^1.9.0",
+    "@langfuse/otel": "^4.6.1",
+    "@langfuse/tracing": "^4.6.1",
+    "langfuse": "^3.35.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.10",
+    "typescript": "^5.9.3"
+  }
+}
