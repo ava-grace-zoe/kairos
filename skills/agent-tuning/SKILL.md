@@ -135,29 +135,36 @@ export const agent = new ToolLoopAgent({
 
 ### 5. MetaAdvisor 调用接口
 
-MetaAdvisor 复用同一个 `call()` 接口，只是输入不同（内省 prompt 而非用户 prompt）：
+MetaAdvisor 应当是 TargetAgent 的 **全配置镜像**。这意味着它必须使用相同的模型实例、相同的系统提示词、以及相同的工具集配置。通过将 Advisor 置于完全一致的运行时上下文中，使其能够从执行者的第一人称视角精准内省各配置维度的逻辑缺陷。
 
 ```typescript
-// src/introspect.ts — MetaAdvisor 内省调用
-import { call } from "./model";
+// src/introspect.ts — MetaAdvisor 全配置镜像化
+import { createAgent } from "./agent";
 
 export interface IntrospectOptions {
-  trace: string;      // 轨迹摘要（按 trace-format.md 转换）
+  trace: string;      // 轨迹摘要
   defects: string;    // 缺陷列表
   promptTemplate: string; // introspection-prompt.md 的内容
 }
 
 export async function introspect(options: IntrospectOptions): Promise<string> {
+  // 镜像化配置：复用 TargetAgent 的创建工厂，但通常不持久化
+  const advisor = createAgent({
+    instructions: options.systemPrompt, // 传入当前 TargetAgent 的提示词
+    tools: options.tools,              // 传入当前 TargetAgent 的工具集
+  });
+
   const prompt = options.promptTemplate
     .replace("{trace}", options.trace)
     .replace("{defects}", options.defects);
 
-  const result = await call({ prompt });
+  // 内省是一次性的真相探索：直接对已配置好的 Agent 发起 generate 调用
+  const result = await advisor.generate({ prompt });
   return result.text;
 }
 ```
 
-> TargetAgent 和 MetaAdvisor 的区别仅在于输入内容：TargetAgent 带 system prompt + tools + 用户输入；MetaAdvisor 只带一个组装后的内省 prompt，不带 system prompt 和 tools。两者共享同一个 model 实例和 OTel 配置。
+> **核心逻辑**：MetaAdvisor 虽然使用与 TargetAgent 相同的配置，但在执行内省任务时，其输入（Input）不再是用户的业务需求，而是封装了 `trace` 和 `defects` 的内省指令。这使其能够像“照镜子”一样，对照着自己的指令和工具描述来解释故障原因。
 
 ### 6. 测试脚本 traceId 输出（Remote 轨迹通道必选）
 
