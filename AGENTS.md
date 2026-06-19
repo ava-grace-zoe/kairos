@@ -25,6 +25,42 @@ skills/<skill-name>/
 └── assets/               # 模板、静态资源（可选）
 ```
 
+## Skill 本地调试与部署（skills CLI）
+
+用 [skills.sh](https://skills.sh/) 的 `skills` CLI 管理 skill 的安装与同步（跨 agent 包管理器，机制：拉到 `node_modules` 后 **symlink（默认）或 copy（`--copy`）到各 agent 的 skill 目录**）。无需全局安装，用 `npx skills <command>`。
+
+### 本地调试（最常用）
+
+- `add` **支持本地路径**（相对 / 绝对 / 单个 skill 目录 / 整个 `skills/`），不是只能拉远端 repo。
+- 默认 **symlink**，所以软链后**改 kairos 源文件即时生效，无需重装**——这是本地调试的关键。`--copy` 是反模式（改源不生效，每次都要重装），调试一律用默认软链。
+
+```bash
+# 看 repo 里有哪些 skill（只列不装）
+npx skills add ./skills -l
+
+# 软链单个 skill 到全局做调试（默认 symlink）
+npx skills add ./skills/<skill-name> -g -s <skill-name> -y
+
+# 之后直接改源文件即时生效；调完移除：
+npx skills remove -g <skill-name>
+```
+
+### 常用命令
+
+| 命令 | 作用 |
+|---|---|
+| `skills add <repo\|本地路径> [-g] [-s <skill>] [-a <agent>]` | 安装；`-g` 全局，`-s` 指定 skill，`-a` 指定 agent（`'*'` 全部），`-l` 只列不装 |
+| `skills ls [-g] [--json]` | 列已装 skill（验证注册状态、软链指向） |
+| `skills remove [-g] <name>` | 移除 |
+| `skills update [-g]` | 更新到最新版 |
+| `skills init <name>` | 初始化 skill 脚手架 |
+| `skills experimental_sync [-a '*']` | 从 `node_modules` 同步到 agent 目录 |
+
+### 注意
+
+- **手动建链与 `skills add` 二选一**：同名 skill 同时存在手动软链和 CLI 软链会冲突/互相覆盖。动手前先 `skills ls -g` 看清现状。
+- `-a` 不写时默认装到检测到的 agent（如 claude-code）；要同步多个 agent 用 `-a claude-code cursor` 或 `-a '*'`。
+
 ## 文档规范
 
 - 文档统一放在 `docs/` 目录下
