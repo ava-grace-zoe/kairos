@@ -71,6 +71,53 @@
   - **A 轨新增 A7 轨**：识别整场会话中出现 2 次及以上的高频重复行为流程，在会话输出中以 `💡 工程效能建议` 的形式，主动提示用户将其固化落地为标准的 Agent Skill（联动 `skill-creator`）。
 - 影响范围：SKILL.md、setup.sh、index.md、design.md、discussion.md
 
+### 2026-06-30 v3 合约收敛与写回确认门禁
+
+- 主题：统一 `session-reflect` 的文档、执行合约和初始化模板，并增加修改前确认机制。
+- 背景：`changelog.md` 已声明 v3 使用 `### 性格与思维轮廓` 和 `### 性格与认知防护`，但 `SKILL.md` 与 `setup.sh` 仍保留旧章节 `### 思维模式` / `### 认知防护`；同时 A7 高频重复工作流只存在于文档，没有进入执行合约。
+- 结论：
+  - 当时的单文件 `context.md` 标准章节统一为：`协作风格`、`性格与思维轮廓`、`行为校准`、`性格与认知防护`、`硬性禁区`。
+  - A7 正式纳入 A 轨，但只输出工程效能建议并写入 `history.md`，不默认写入 `context.md`。
+  - 新增强制确认门禁：创建、覆盖、软链接或追加任何文件前，必须先展示拟修改摘要并获得用户明确确认。
+  - B 轨负面或缺陷类观察必须满足证据门槛；证据不足时标为“初步观察”，默认不进入稳定画像。
+  - 注：该单文件章节方案已被后续三层拆分和目录化模型取代。
+- 影响范围：SKILL.md、setup.sh、index.md、design.md、test-plan.md、changelog.md
+
+### 2026-06-30 context.md 写作人称规范
+
+- 主题：统一 `context.md` 的人称，降低跨工具读取时的指令歧义。
+- 背景：现有画像中混用“用户”“AI 应”“我”等表达，`context.md` 又会被 Claude / Codex / Gemini 直接读入上下文；第一人称容易被模型误解为助手自身，第三人称指令又不如第二人称可执行。
+- 结论：
+  - `综合画像` 使用第三人称“使用者”。
+  - `AI 应对指南` 使用第二人称命令式“你”。
+  - `偏好与习惯` 使用名词化短句。
+  - 禁止用第一人称“我”表达用户偏好。
+  - 注：该人称规范后续收敛为 `profile.md` 使用第三人称、`context.md` 使用第二人称。
+- 影响范围：design.md、index.md、test-plan.md、SKILL.md
+
+### 2026-06-30 三层文件模型：profile / context / history
+
+- 主题：将画像沉淀与 Agent 常驻执行策略分离。
+- 背景：继续讨论后确认，用户画像本身不应直接丢给日常 Agent。画像是分析中间层，直接常驻会带来心理诊断感、标签误用和上下文污染；Agent 更需要的是从画像反推出的可执行策略。
+- 结论：
+  - 新增 `~/.agents/profile.md`：保存跨会话稳定画像、思维模式、风险线索和证据索引，供 `session-reflect` 更新时参考。
+  - `~/.agents/context.md` 调整为 Agent 执行策略层，只写“你应该怎么做”，不写“使用者是什么样的人”。
+  - `~/.agents/history.md` 继续作为审计日志，记录每次更新的证据、推导和变更摘要。
+  - 更新流程变为：会话证据 → 更新 profile 草案 → 从 profile 反推 context 策略草案 → 用户确认 → 写回三层文件。
+  - 注：该路径方案已被后续“候选工作流库与目录化组织”收纳，当前实现路径以 `~/.agents/session-reflect/` 为准。
+- 影响范围：design.md、index.md、test-plan.md、changelog.md；后续需要同步 SKILL.md 与 setup.sh
+
+### 2026-06-30 候选工作流库与目录化组织
+
+- 主题：为跨会话重复工作流增加独立候选库，并收纳 session-reflect 相关文件。
+- 背景：A7 原本只能识别当前会话里的重复工作流，容易过早推荐创建 skill。用户指出需要能沉淀“不同会话多次出现的重复”，达到阈值后再推荐。
+- 结论：
+  - 新增 `workflow-candidates.md`，记录候选工作流的状态、出现次数、最近出现、输入、输出、证据和推荐动作。
+  - 候选规则：单次会话重复记为 `candidate`；跨会话 2 次可升级 `recommended`；跨会话 3 次且输入输出稳定时强建议 skill 化。
+  - 内部文件收纳到 `~/.agents/session-reflect/`，包括 `profile.md`、`context.md`、`history.md`、`workflow-candidates.md`。
+  - 保留 `~/.agents/context.md` 作为对外稳定入口，推荐指向 `session-reflect/context.md`。
+- 影响范围：design.md、index.md、test-plan.md、changelog.md；后续需要同步 SKILL.md 与 setup.sh
+
 ## 待决策事项
 
 1. 长周期归档策略
@@ -82,5 +129,5 @@
    - 建议：评估是否通过导出脚本或中间层配置实现部分复用。
 
 3. 自动化与静默化 Skill 生成
-   - 问题：目前“工程效能建议”仅做建言提示，需要手动引导，如何实现完全自动化或半自动一键生成 Skill 仍待摸索。
-   - 建议：在后续版本中，评估在得到用户授权后，直接调用 `skill-creator` 执行静默创建。
+   - 问题：目前“工程效能建议”仅做建言提示，需要手动引导。
+   - 结论：不做静默自动生成；只有用户明确授权后，才允许联动 `skill-creator` 创建新 skill。
