@@ -1,20 +1,14 @@
 # Kairos
 
-个人 **Agent Skills** 和 **MCP Servers** 的 Monorepo —— 一个用于扩展 AI 编程助手能力的工具箱。
+个人 **Agent Skills** 仓库 —— 一个用于扩展 AI 编程助手能力的工具箱。
 
 ## 项目结构
 
 ```
 skills/              Agent Skills（遵循开放 Agent Skills 规范）
 ├── progress-manager/ 保存/恢复会话工作进度
-├── session-reflect/  会话反思与用户画像更新
-├── cross-review/     跨模型交叉评审
+├── session-reflect/  会话反思、策略维护与候选工作流沉淀
 └── ...
-
-mcps/                MCP Servers（bun workspace 管理）
-└── ...
-
-shared/              MCP Servers 之间的共享工具
 ```
 
 ## 安装 Skills
@@ -30,7 +24,7 @@ npx skills add ava-grace-zoe/kairos
 安装单个 Skill：
 
 ```bash
-npx skills add ava-grace-zoe/kairos --skill save-progress
+npx skills add ava-grace-zoe/kairos --skill progress-manager
 ```
 
 安装后，Skills 会自动对你的 AI 助手（Claude Code、Cursor、Copilot 等）生效，在相关任务触发时自动激活。
@@ -40,22 +34,15 @@ npx skills add ava-grace-zoe/kairos --skill save-progress
 | Skill | 说明 |
 |-------|------|
 | `progress-manager` | 保存/恢复会话工作进度，用于"保存进度"或"恢复进度/继续上次工作"场景 |
-| `session-reflect` | 会话结束时提取偏好与认知双轨证据，更新用户画像并输出元认知反馈 |
-| `cross-review` | 跨模型交叉评审，调用外部 code agent 独立评审同一方案，汇总共识与分歧 |
+| `session-reflect` | 会话结束时沉淀画像、维护 Agent 执行策略，并累计候选工作流 |
 
 ## 开发
 
 需要 [Bun](https://bun.sh)。
 
 ```bash
-# 安装依赖
-bun install
-
-# 开发模式运行所有 MCP Servers
-bun run dev
-
-# 构建所有包
-bun run build
+# 本地软链全部 Skills，便于调试
+bun run link:dev
 ```
 
 ### 新增 Skill
@@ -65,17 +52,6 @@ bun run build
 ```
 skills/my-skill/
 └── SKILL.md       # YAML frontmatter（name、description、version）+ 指令内容
-```
-
-### 新增 MCP Server
-
-在 `mcps/` 下创建包，bun workspaces 会自动识别：
-
-```
-mcps/my-mcp/
-├── package.json
-├── tsconfig.json
-└── src/index.ts
 ```
 
 ## 许可

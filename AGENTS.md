@@ -1,18 +1,15 @@
 # Kairos
 
-Personal monorepo for Agent Skills and MCP Servers.
+Personal repository for Agent Skills.
 
 ## Structure
 
 - `skills/` — Agent Skills（每个子目录包含 SKILL.md，遵循 Agent Skills 规范）
-- `mcps/` — MCP Servers（bun workspace packages）
-- `shared/` — MCP 间的共享工具
 - `docs/` — 项目文档（每个 skill/功能一个同名目录，使用 `index.md` 作为入口）
 
 ## Conventions
 
 - Package manager: bun
-- MCP servers use TypeScript
 - Skills 遵循 open Agent Skills 规范（SKILL.md with YAML frontmatter）
 - 所有文档和注释使用简体中文
 

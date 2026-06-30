@@ -1,13 +1,7 @@
 {
   "name": "kairos",
   "private": true,
-  "workspaces": [
-    "mcps/*",
-    "shared"
-  ],
   "scripts": {
-    "dev": "bun run --filter '*' dev",
-    "build": "bun run --filter '*' build",
-    "link:dev": " npx skills add ./"
+    "link:dev": "npx skills add ./skills -g -y"
   }
 }
