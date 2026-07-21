@@ -171,15 +171,16 @@ docs/<name>/design.md → docs/<name>/index.md → skills/<name>/SKILL.md
   - YAML frontmatter（`name` + `description`，description 包含触发关键词）
   - 前置条件
   - 执行步骤 — 从 docs 的工作流程转化而来，面向 AI 的指令式表达
-  - 辅助资源引用（如有）
+  - 运行时资源引用（如有）— 仅引用随 skill 一起分发的 `scripts/`、`references/`、`assets/`
 - 完成标准：
   - [ ] YAML frontmatter 格式正确
   - [ ] 执行步骤覆盖 docs 中定义的工作流程
-  - [ ] 引用的辅助资源文件实际存在
-  - [ ] SKILL.md 中指向 design.md 的链接，示例：`设计文档：docs/<skill-name>/design.md`
+  - [ ] 运行时引用的资源位于 `skills/<skill-name>/` 内且实际存在
+  - [ ] `SKILL.md` 不引用仓库级 `docs/`；设计追溯由 `docs/<skill-name>/index.md` 负责
 - 禁止事项：
   - 不在 SKILL.md 中重复设计推导过程（留在 design.md）
   - 不在 SKILL.md 中放置讨论和决策记录（留在 discussion.md）
+  - 不把 design / discussion / changelog 等维护者文档声明为 Agent 运行时依赖
 
 ### 阶段间关系
 
