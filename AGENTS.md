@@ -24,30 +24,45 @@ skills/<skill-name>/
 
 ## Skill 本地调试与部署（skills CLI）
 
-用 [skills.sh](https://skills.sh/) 的 `skills` CLI 管理 skill 的安装与同步（跨 agent 包管理器，机制：拉到 `node_modules` 后 **symlink（默认）或 copy（`--copy`）到各 agent 的 skill 目录**）。无需全局安装，用 `npx skills <command>`。
+用 [skills.sh](https://skills.sh/) 的 `skills` CLI（Command-Line Interface，命令行界面）管理 skill 的安装与同步。无需全局安装，用 `npx skills <command>`。
+
+已实测（`skills` 1.5.18、1.5.19）：从本地路径执行 `skills add` 时，CLI 会把 skill 复制到 canonical store（统一安装目录），不会让安装目录直接软链接回 kairos 源目录。即使没有传 `--copy`，修改 `skills/<skill-name>/` 后也不会自动同步到已安装副本。
 
 ### 本地调试（最常用）
 
 - `add` **支持本地路径**（相对 / 绝对 / 单个 skill 目录 / 整个 `skills/`），不是只能拉远端 repo。
-- 默认 **symlink**，所以软链后**改 kairos 源文件即时生效，无需重装**——这是本地调试的关键。`--copy` 是反模式（改源不生效，每次都要重装），调试一律用默认软链。
+- **每次修改 skill 后必须重新安装**。不要依据 CLI 输出中的 `symlink` 推断它链接到了 kairos 源目录；该链接只可能存在于 Agent 目录与 canonical store 之间。
 
 ```bash
 # 看 repo 里有哪些 skill（只列不装）
 npx skills add ./skills -l
 
-# 软链单个 skill 到全局做调试（默认 symlink）
+# 首次安装单个 skill 到全局
 npx skills add ./skills/<skill-name> -g -s <skill-name> -y
 
-# 之后直接改源文件即时生效；调完移除：
+# 每次修改 skills/<skill-name>/ 后：先移除旧副本，再重新安装
+npx skills remove -g <skill-name> -y
+npx skills add ./skills/<skill-name> -g -s <skill-name> -y
+
+# 验证注册状态和安装内容；输出应包含 <skill-name>
+npx skills ls -g --json
+
+# 调试结束后移除
 npx skills remove -g <skill-name>
 ```
+
+失败处理：
+
+- `skills add` 报目标已存在：先运行 `npx skills remove -g <skill-name> -y`，再重新安装。
+- 输出包含某个 Agent 不支持全局安装，但同时显示目标 skill 安装成功：用 `npx skills ls -g --json` 核对实际已注册的 Agent；不要仅凭进程退出码判断。
+- 修改后行为仍是旧版本：对比 `skills/<skill-name>/SKILL.md` 与 `~/.agents/skills/<skill-name>/SKILL.md`，确认内容一致；不一致时再次执行“移除 → 安装”。
 
 ### 常用命令
 
 | 命令 | 作用 |
 |---|---|
 | `skills add <repo\|本地路径> [-g] [-s <skill>] [-a <agent>]` | 安装；`-g` 全局，`-s` 指定 skill，`-a` 指定 agent（`'*'` 全部），`-l` 只列不装 |
-| `skills ls [-g] [--json]` | 列已装 skill（验证注册状态、软链指向） |
+| `skills ls [-g] [--json]` | 列已装 skill（验证注册状态和 Agent 覆盖范围） |
 | `skills remove [-g] <name>` | 移除 |
 | `skills update [-g]` | 更新到最新版 |
 | `skills init <name>` | 初始化 skill 脚手架 |
@@ -55,7 +70,8 @@ npx skills remove -g <skill-name>
 
 ### 注意
 
-- **手动建链与 `skills add` 二选一**：同名 skill 同时存在手动软链和 CLI 软链会冲突/互相覆盖。动手前先 `skills ls -g` 看清现状。
+- 不要手动修改 canonical store 中的副本；源文件始终修改 `skills/<skill-name>/`，然后执行“移除 → 安装”。
+- **手动建链与 `skills add` 二选一**：同名 skill 同时存在手动软链和 CLI 管理的安装项会冲突或互相覆盖。动手前先 `skills ls -g` 看清现状。
 - `-a` 不写时默认装到检测到的 agent（如 claude-code）；要同步多个 agent 用 `-a claude-code cursor` 或 `-a '*'`。
 
 ## 文档规范

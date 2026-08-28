@@ -41,9 +41,19 @@ npx skills add ava-grace-zoe/kairos --skill progress-manager
 需要 [Bun](https://bun.sh)。
 
 ```bash
-# 本地软链全部 Skills，便于调试
+# 安装全部本地 Skills
 bun run link:dev
 ```
+
+`skills` CLI 从本地路径安装时会复制 Skill 内容，修改 `skills/` 下的源文件不会自动更新已安装副本。每次修改后必须重新安装对应 Skill：
+
+```bash
+npx skills remove -g <skill-name> -y
+npx skills add ./skills/<skill-name> -g -s <skill-name> -y
+npx skills ls -g --json
+```
+
+最后一个命令用于验证 Skill 已重新注册；若安装仍使用旧内容，再次执行“移除 → 安装”。
 
 ### 新增 Skill
 
