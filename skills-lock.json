@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "session-reflect": {
+      "source": "/Users/ragdoll/Projects/ragdoll/kairos/skills/session-reflect",
+      "sourceType": "local",
+      "computedHash": "d2178530f86e56ba7bf491e28b42d7384f7b5d5b7fdabfe98da3774598c77a6f"
+    }
+  }
+}
