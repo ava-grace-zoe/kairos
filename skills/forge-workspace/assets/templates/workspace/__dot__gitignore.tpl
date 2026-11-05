@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+packages/database/src/generated/
+.forge/operation.lock
+.forge/.add-*/
+test-results/

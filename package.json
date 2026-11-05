@@ -4,6 +4,11 @@
   "scripts": {
     "link:dev": "npx skills add ./skills -g -y",
     "check:skill-boundaries": "bash scripts/check-skill-boundaries.sh",
-    "test:skill-boundaries": "bash scripts/test-skill-boundaries.sh"
+    "test:skill-boundaries": "bash scripts/test-skill-boundaries.sh",
+    "test:forge": "vitest run tests/forge-workspace",
+    "test:forge:smoke": "bash scripts/smoke-forge-workspace.sh"
+  },
+  "devDependencies": {
+    "vitest": "5.0.2"
   }
 }
