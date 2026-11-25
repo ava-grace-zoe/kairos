@@ -9,6 +9,7 @@ skills/              Agent Skills（遵循开放 Agent Skills 规范）
 ├── agent-facing-design/ 设计和审查面向 Agent 的工具与文档
 ├── forge-workspace/  创建和扩展带文档、前后端、数据库及测试的完整工程
 ├── git-commit/       按逻辑拆分并提交代码变更
+├── personal-memo/    使用 SQLite 管理个人备忘录，支持分类、关键词和时间检索
 ├── progress-manager/ 保存/恢复会话工作进度
 └── test-standards/   测试规范参考文档（非独立 Skill）
 ```
@@ -38,6 +39,7 @@ npx skills add ava-grace-zoe/kairos --skill progress-manager
 | `agent-facing-design` | 设计、审查和改进面向 Agent 的工具与文档 |
 | [`forge-workspace`](docs/forge-workspace/index.md) | 工程铸造：初始化 pnpm 全栈工作区，新增前端、后端或共享包；当前通过本地路径安装 |
 | `git-commit` | 将工作区变更拆分为原子提交，遵循约定式提交规范（Conventional Commits） |
+| [`personal-memo`](docs/personal-memo/index.md) | 使用 SQLite 管理个人备忘录，默认存储在 `~/person.memo.db`，支持增删改查、分类和时间检索 |
 | `progress-manager` | 保存/恢复会话工作进度，用于"保存进度"或"恢复进度/继续上次工作"场景 |
 
 ## 开发

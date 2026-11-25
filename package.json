@@ -6,7 +6,8 @@
     "check:skill-boundaries": "bash scripts/check-skill-boundaries.sh",
     "test:skill-boundaries": "bash scripts/test-skill-boundaries.sh",
     "test:forge": "vitest run tests/forge-workspace",
-    "test:forge:smoke": "bash scripts/smoke-forge-workspace.sh"
+    "test:forge:smoke": "bash scripts/smoke-forge-workspace.sh",
+    "test:memo": "bash tests/personal-memo/sqlite-cli.sh"
   },
   "devDependencies": {
     "vitest": "5.0.2"
